@@ -1,38 +1,51 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/thetkpark/golang-todo/db"
 	"github.com/thetkpark/golang-todo/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type RegisterDto struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" binding:"required,min=1,max=255"`
+	Password string `json:"password" binding:"required,min=1,max=255"`
 }
 
 func RegisterController(ctx *gin.Context) {
 	var bodyData RegisterDto
-	if err := ctx.BindJSON(&bodyData); err != nil {
-		fmt.Println("Error Occure while paring ")
-		ctx.JSON(500, err)
+	if err := ctx.ShouldBindJSON(&bodyData); err != nil {
+		ctx.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(bodyData.Password), bcrypt.DefaultCost)
+	if err != nil {
+		ctx.JSON(500, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
 	user := models.Users{
 		Username: bodyData.Username,
-		Password: bodyData.Password,
+		Password: string(hashedPassword),
 	}
 
 	db, err := db.GetDB()
 	if err != nil {
-		ctx.JSON(500, err)
+		ctx.JSON(500, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
 	if tx := db.Create(&user); tx.Error != nil {
-		ctx.JSON(500, tx.Error)
+		ctx.JSON(500, gin.H{
+			"error": tx.Error.Error(),
+		})
 		return
 	}
 
