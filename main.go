@@ -41,6 +41,7 @@ func main() {
 	authorization := router.Group("/")
 	authorization.Use(middlewares.AuthorizeJWT())
 	{
+		authorization.GET("/api/todo", controllers.GetTodoController)
 		authorization.POST("/api/todo", controllers.CreateTodoController)
 		authorization.PATCH("/api/todo/:todoId", controllers.FinishTodoController)
 		authorization.DELETE("/api/todo/:todoId", controllers.DeleteTodoController)
