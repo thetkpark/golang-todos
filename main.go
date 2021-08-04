@@ -35,6 +35,7 @@ func main() {
 		})
 	})
 	router.POST("/api/regis", controllers.RegisterController)
+	router.POST("/api/signin", controllers.SignInController)
 
 	err = router.Run(":5000")
 	if err != nil {
