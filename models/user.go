@@ -2,9 +2,9 @@ package models
 
 import "gorm.io/gorm"
 
-type Users struct {
+type User struct {
 	gorm.Model
-	Username string
+	Username string `gorm:"unique"`
 	Password string
 	Todos    []Todo `gorm:"foreignKey:UserId"`
 }
