@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/thetkpark/golang-todo/controllers"
 	"github.com/thetkpark/golang-todo/db"
+	"github.com/thetkpark/golang-todo/middlewares"
 	"github.com/thetkpark/golang-todo/models"
 	"log"
 	"time"
@@ -36,6 +37,12 @@ func main() {
 	})
 	router.POST("/api/regis", controllers.RegisterController)
 	router.POST("/api/signin", controllers.SignInController)
+
+	authorization := router.Group("/")
+	authorization.Use(middlewares.AuthorizeJWT())
+	{
+		authorization.POST("/api/todo", controllers.CreateTodoController)
+	}
 
 	err = router.Run(":5000")
 	if err != nil {

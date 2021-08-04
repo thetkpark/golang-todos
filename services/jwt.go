@@ -42,7 +42,6 @@ func ValidateJWT(encodedToken string) (*jwt.Token, error) {
 	return jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
 		if _, isValid := token.Method.(*jwt.SigningMethodHMAC); !isValid {
 			return nil, fmt.Errorf("invalid token: %v", token.Header["alg"])
-
 		}
 		return []byte(getSecret()), nil
 	})
