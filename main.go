@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/thetkpark/golang-todo/controllers"
@@ -8,14 +9,17 @@ import (
 	"github.com/thetkpark/golang-todo/middlewares"
 	"github.com/thetkpark/golang-todo/models"
 	"log"
+	"os"
 	"time"
 )
 
 func main() {
 
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalln("error loading .env")
+	if os.Getenv("GIN_MODE") != "release" {
+		err := godotenv.Load(".env")
+		if err != nil {
+			log.Fatalln("error loading .env")
+		}
 	}
 
 	router := gin.Default()
@@ -51,4 +55,5 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	fmt.Println("Running on 5000")
 }
