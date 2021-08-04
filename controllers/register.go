@@ -16,18 +16,18 @@ type RegisterDto struct {
 func RegisterController(ctx *gin.Context) {
 	var bodyData RegisterDto
 	if err := ctx.ShouldBindJSON(&bodyData); err != nil {
-		ctx.JSON(400, gin.H{
-			"error": err.Error(),
+		panic(Error{
+			StatusCode: 400,
+			Message:    err.Error(),
 		})
-		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(bodyData.Password), bcrypt.DefaultCost)
 	if err != nil {
-		ctx.JSON(500, gin.H{
-			"error": err.Error(),
+		panic(Error{
+			StatusCode: 500,
+			Message:    err.Error(),
 		})
-		return
 	}
 
 	user := models.Users{
@@ -37,25 +37,25 @@ func RegisterController(ctx *gin.Context) {
 
 	db, err := db.GetDB()
 	if err != nil {
-		ctx.JSON(500, gin.H{
-			"error": err.Error(),
+		panic(Error{
+			StatusCode: 500,
+			Message:    err.Error(),
 		})
-		return
 	}
 
 	if tx := db.Create(&user); tx.Error != nil {
-		ctx.JSON(500, gin.H{
-			"error": tx.Error.Error(),
+		panic(Error{
+			StatusCode: 500,
+			Message:    tx.Error.Error(),
 		})
-		return
 	}
 
 	token, err := services.GenerateJWT(user.ID)
 	if err != nil {
-		ctx.JSON(500, gin.H{
-			"error": err.Error(),
+		panic(Error{
+			StatusCode: 500,
+			Message:    err.Error(),
 		})
-		return
 	}
 
 	ctx.JSON(201, gin.H{
