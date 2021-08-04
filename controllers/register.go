@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/thetkpark/golang-todo/db"
 	"github.com/thetkpark/golang-todo/models"
+	"github.com/thetkpark/golang-todo/services"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -49,5 +50,15 @@ func RegisterController(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(201, user)
+	token, err := services.GenerateJWT(user.ID)
+	if err != nil {
+		ctx.JSON(500, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(201, gin.H{
+		"token": token,
+	})
 }

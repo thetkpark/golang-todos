@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"github.com/thetkpark/golang-todo/controllers"
 	"github.com/thetkpark/golang-todo/db"
 	"github.com/thetkpark/golang-todo/models"
@@ -10,6 +11,12 @@ import (
 )
 
 func main() {
+
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalln("error loading .env")
+	}
+
 	router := gin.Default()
 
 	db, err := db.GetDB()

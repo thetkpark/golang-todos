@@ -9,7 +9,7 @@ import (
 )
 
 type JWTPayload struct {
-	UserId string `json:"user_id"`
+	UserId uint `json:"user_id"`
 	jwt.StandardClaims
 }
 
@@ -21,7 +21,7 @@ func getSecret() string {
 	return secret
 }
 
-func GenerateJWT(userId string) (string, error) {
+func GenerateJWT(userId uint) (string, error) {
 	claims := &JWTPayload{
 		userId,
 		jwt.StandardClaims{
@@ -30,9 +30,8 @@ func GenerateJWT(userId string) (string, error) {
 			Issuer:    "server",
 		},
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(getSecret())
+	tokenString, err := token.SignedString([]byte(getSecret()))
 	if err != nil {
 		return "", fmt.Errorf("%v", err)
 	}
