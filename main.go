@@ -42,6 +42,7 @@ func main() {
 	authorization.Use(middlewares.AuthorizeJWT())
 	{
 		authorization.POST("/api/todo", controllers.CreateTodoController)
+		authorization.PATCH("/api/todo/:todoId", controllers.FinishTodoController)
 	}
 
 	err = router.Run(":5000")
