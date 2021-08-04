@@ -43,6 +43,7 @@ func main() {
 	{
 		authorization.POST("/api/todo", controllers.CreateTodoController)
 		authorization.PATCH("/api/todo/:todoId", controllers.FinishTodoController)
+		authorization.DELETE("/api/todo/:todoId", controllers.DeleteTodoController)
 	}
 
 	err = router.Run(":5000")
