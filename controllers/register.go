@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/thetkpark/golang-todo/models"
-	"github.com/thetkpark/golang-todo/services"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -63,7 +62,7 @@ func (c *Controller) RegisterController(ctx *gin.Context) {
 	}
 
 	// Generate JWT
-	token, err := services.GenerateJWT(user.ID)
+	token, err := c.jwtManager.GenerateJWT(user.ID)
 	if err != nil {
 		ctx.JSON(500, gin.H{
 			"message": err.Error(),

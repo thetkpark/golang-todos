@@ -8,6 +8,7 @@ import (
 	"github.com/thetkpark/golang-todo/db"
 	"github.com/thetkpark/golang-todo/middlewares"
 	"github.com/thetkpark/golang-todo/models"
+	"github.com/thetkpark/golang-todo/services"
 	"log"
 	"os"
 	"time"
@@ -33,8 +34,18 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	// Create JWTManager
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if len(jwtSecret) == 0 {
+		log.Fatalln("cannot get JWT_SECRET from OS env")
+	}
+	jwtManager := services.NewJWTManager(jwtSecret, time.Hour*24)
+
 	// Create controller
-	controller := controllers.NewController(gormDB)
+	controller := controllers.NewController(gormDB, jwtManager)
+
+	// Create middleware
+	middleware := middlewares.NewMiddleware(jwtManager)
 
 	router.GET("/api/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -46,7 +57,7 @@ func main() {
 	router.POST("/api/signin", controller.SignInController)
 
 	authorization := router.Group("/")
-	authorization.Use(middlewares.AuthorizeJWT())
+	authorization.Use(middleware.AuthorizeJWT())
 	{
 		authorization.GET("/api/todo", controller.GetTodoController)
 		authorization.POST("/api/todo", controller.CreateTodoController)
@@ -59,4 +70,5 @@ func main() {
 		log.Fatalln(err)
 	}
 	fmt.Println("Running on 5000")
+
 }
