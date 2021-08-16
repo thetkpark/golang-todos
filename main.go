@@ -24,14 +24,17 @@ func main() {
 
 	router := gin.Default()
 
-	db, err := db.GetDB()
+	gormDB, err := db.GetDB()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = db.AutoMigrate(&models.User{}, &models.Todo{})
+	err = gormDB.AutoMigrate(&models.User{}, &models.Todo{})
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	// Create controller
+	controller := controllers.NewController(gormDB)
 
 	router.GET("/api/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -39,16 +42,16 @@ func main() {
 			`timestamp`: time.Now(),
 		})
 	})
-	router.POST("/api/regis", controllers.RegisterController)
-	router.POST("/api/signin", controllers.SignInController)
+	router.POST("/api/regis", controller.RegisterController)
+	router.POST("/api/signin", controller.SignInController)
 
 	authorization := router.Group("/")
 	authorization.Use(middlewares.AuthorizeJWT())
 	{
-		authorization.GET("/api/todo", controllers.GetTodoController)
-		authorization.POST("/api/todo", controllers.CreateTodoController)
-		authorization.PATCH("/api/todo/:todoId", controllers.FinishTodoController)
-		authorization.DELETE("/api/todo/:todoId", controllers.DeleteTodoController)
+		authorization.GET("/api/todo", controller.GetTodoController)
+		authorization.POST("/api/todo", controller.CreateTodoController)
+		authorization.PATCH("/api/todo/:todoId", controller.FinishTodoController)
+		authorization.DELETE("/api/todo/:todoId", controller.DeleteTodoController)
 	}
 
 	err = router.Run(":5000")

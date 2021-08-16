@@ -3,7 +3,6 @@ package controllers
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/thetkpark/golang-todo/db"
 	"github.com/thetkpark/golang-todo/models"
 	"github.com/thetkpark/golang-todo/services"
 	"golang.org/x/crypto/bcrypt"
@@ -15,7 +14,7 @@ type SigninDto struct {
 	Password string `json:"password" binding:"required,min=1,max=255"`
 }
 
-func SignInController(ctx *gin.Context) {
+func (c *Controller) SignInController(ctx *gin.Context) {
 	var body SigninDto
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(500, gin.H{
@@ -24,16 +23,8 @@ func SignInController(ctx *gin.Context) {
 		return
 	}
 
-	db, err := db.GetDB()
-	if err != nil {
-		ctx.JSON(500, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
 	var user models.User
-	tx := db.Where(&models.User{Username: body.Username}).First(&user)
+	tx := c.db.Where(&models.User{Username: body.Username}).First(&user)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			ctx.JSON(400, gin.H{
@@ -47,7 +38,7 @@ func SignInController(ctx *gin.Context) {
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 	if err != nil {
 		ctx.JSON(400, gin.H{
 			"message": "Invalid Credential",
