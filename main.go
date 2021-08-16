@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/thetkpark/golang-todo/controllers"
@@ -10,7 +11,10 @@ import (
 	"github.com/thetkpark/golang-todo/models"
 	"github.com/thetkpark/golang-todo/services"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -65,10 +69,36 @@ func main() {
 		authorization.DELETE("/api/todo/:todoId", controller.DeleteTodoController)
 	}
 
-	err = router.Run(":5000")
-	if err != nil {
-		log.Fatalln(err)
+	server := &http.Server{
+		Addr:    ":5000",
+		Handler: router,
 	}
-	fmt.Println("Running on 5000")
 
+	// Initializing the server in a goroutine
+	go func() {
+		if err := server.ListenAndServe(); err != nil && errors.Is(err, http.ErrServerClosed) {
+			log.Printf("listen: %s\n", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 5 seconds.
+	quit := make(chan os.Signal)
+	// kill (no param) default send syscall.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit // Block until quit channel is received
+	log.Println("Shutting down server...")
+
+	// The context is used to inform the server it has 5 seconds to finish
+	// the request it is currently handling
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to shutdown:", err)
+	}
+
+	log.Println("Server exiting")
 }
