@@ -1,5 +1,10 @@
 basePath: /
 definitions:
+  controllers.ErrorMessage:
+    properties:
+      message:
+        type: string
+    type: object
   controllers.TokenResponseDto:
     properties:
       token:
@@ -42,6 +47,14 @@ paths:
           description: the user is register and token is given back
           schema:
             $ref: '#/definitions/controllers.TokenResponseDto'
+        "400":
+          description: Missing some attribute or username is in used
+          schema:
+            $ref: '#/definitions/controllers.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorMessage'
       summary: Register the new user
       tags:
       - auth
@@ -63,6 +76,14 @@ paths:
           description: the user is login and token is given back
           schema:
             $ref: '#/definitions/controllers.TokenResponseDto'
+        "400":
+          description: Missing some attribute or invalid credential
+          schema:
+            $ref: '#/definitions/controllers.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorMessage'
       summary: Login the user
       tags:
       - auth

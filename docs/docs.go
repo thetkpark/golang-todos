@@ -55,6 +55,18 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/controllers.TokenResponseDto"
                         }
+                    },
+                    "400": {
+                        "description": "Missing some attribute or username is in used",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorMessage"
+                        }
                     }
                 }
             }
@@ -88,12 +100,32 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/controllers.TokenResponseDto"
                         }
+                    },
+                    "400": {
+                        "description": "Missing some attribute or invalid credential",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorMessage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ErrorMessage"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
+        "controllers.ErrorMessage": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.TokenResponseDto": {
             "type": "object",
             "properties": {
