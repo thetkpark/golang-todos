@@ -1,4 +1,4 @@
-package db
+package data
 
 import (
 	"gorm.io/driver/sqlite"
@@ -6,5 +6,5 @@ import (
 )
 
 func GetDB() (*gorm.DB, error) {
-	return gorm.Open(sqlite.Open("todo.db"), &gorm.Config{})
+	return gorm.Open(sqlite.Open("todo.data"), &gorm.Config{})
 }

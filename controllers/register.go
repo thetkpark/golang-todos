@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/thetkpark/golang-todo/models"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -25,39 +24,37 @@ type UserCredentialDto struct {
 // @Failure 400 {object} controllers.ErrorMessage "Missing some attribute or username is in used"
 // @Failure 500 {object} controllers.ErrorMessage "Internal Server Error"
 // @Router /api/regis [post]
-func (c *Controller) RegisterController(ctx *gin.Context) {
+func (c *AuthController) RegisterController(ctx *gin.Context) {
 	var bodyData UserCredentialDto
 	if err := ctx.ShouldBindJSON(&bodyData); err != nil {
 		ctx.JSON(400, ErrorMessage{Message: err.Error()})
 		return
 	}
 
+	// Check exising username
+	existingUser, err := c.userRepository.FindByUsername(bodyData.Username)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// No user found, do nothing
+		} else {
+			ctx.JSON(500, ErrorMessage{Message: err.Error()})
+			return
+		}
+	} else if existingUser != nil {
+		ctx.JSON(400, ErrorMessage{Message: fmt.Sprintf("username %s is unavaliable", bodyData.Username)})
+		return
+	}
+
+	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(bodyData.Password), bcrypt.DefaultCost)
 	if err != nil {
 		ctx.JSON(500, ErrorMessage{Message: err.Error()})
 		return
 	}
 
-	user := models.User{
-		Username: bodyData.Username,
-		Password: string(hashedPassword),
-	}
-
-	// Check exising username
-	var existingUser int64
-	tx := c.db.Model(&models.User{}).Where(&models.User{Username: bodyData.Username}).Count(&existingUser)
-	if tx.Error != nil && !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-		ctx.JSON(500, ErrorMessage{Message: err.Error()})
-		return
-	}
-	fmt.Println(existingUser)
-	if existingUser != 0 {
-		ctx.JSON(400, ErrorMessage{Message: "Username is unavailable"})
-		return
-	}
-
 	// Create new user
-	if tx := c.db.Create(&user); tx.Error != nil {
+	user, err := c.userRepository.Create(bodyData.Username, string(hashedPassword))
+	if err != nil {
 		ctx.JSON(500, ErrorMessage{Message: err.Error()})
 		return
 	}

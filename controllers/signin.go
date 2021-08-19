@@ -3,7 +3,6 @@ package controllers
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/thetkpark/golang-todo/models"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -18,25 +17,24 @@ import (
 // @Failure 400 {object} controllers.ErrorMessage "Missing some attribute or invalid credential"
 // @Failure 500 {object} controllers.ErrorMessage "Internal Server Error"
 // @Router /api/signin [post]
-func (c *Controller) SignInController(ctx *gin.Context) {
+func (c *AuthController) SignInController(ctx *gin.Context) {
 	var body UserCredentialDto
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(400, ErrorMessage{Message: err.Error()})
 		return
 	}
 
-	var user models.User
-	tx := c.db.Where(&models.User{Username: body.Username}).First(&user)
-	if tx.Error != nil {
-		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+	user, err := c.userRepository.FindByUsername(body.Username)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			ctx.JSON(400, ErrorMessage{Message: "Invalid Credential"})
 			return
 		}
-		ctx.JSON(500, ErrorMessage{Message: tx.Error.Error()})
+		ctx.JSON(500, ErrorMessage{Message: err.Error()})
 		return
 	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 	if err != nil {
 		ctx.JSON(400, ErrorMessage{Message: "Invalid Credential"})
 		return

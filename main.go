@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/hashicorp/go-hclog"
 	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/thetkpark/golang-todo/controllers"
-	"github.com/thetkpark/golang-todo/db"
+	"github.com/thetkpark/golang-todo/data"
 	_ "github.com/thetkpark/golang-todo/docs"
 	"github.com/thetkpark/golang-todo/middlewares"
 	"github.com/thetkpark/golang-todo/models"
@@ -43,9 +44,10 @@ func main() {
 		}
 	}
 
+	logger := hclog.Default()
 	router := gin.Default()
 
-	gormDB, err := db.GetDB()
+	gormDB, err := data.GetDB()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -61,7 +63,11 @@ func main() {
 	}
 	jwtManager := services.NewJWTManager(jwtSecret, time.Hour*24)
 
+	// Create data repository
+	userRepository := data.NewGormUserRepository(gormDB, logger)
+
 	// Create controller
+	authController := controllers.NewAuthController(userRepository, jwtManager, logger)
 	controller := controllers.NewController(gormDB, jwtManager)
 
 	// Create middleware
@@ -73,8 +79,8 @@ func main() {
 			`timestamp`: time.Now(),
 		})
 	})
-	router.POST("/api/regis", controller.RegisterController)
-	router.POST("/api/signin", controller.SignInController)
+	router.POST("/api/regis", authController.RegisterController)
+	router.POST("/api/signin", authController.SignInController)
 
 	authorization := router.Group("/")
 	authorization.Use(middleware.AuthorizeJWT())
