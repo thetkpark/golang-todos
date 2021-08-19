@@ -9,13 +9,22 @@ import (
 	"gorm.io/gorm"
 )
 
-type RegisterDto struct {
+// UserCredentialDto auth
+type UserCredentialDto struct {
 	Username string `json:"username" binding:"required,min=1,max=255"`
 	Password string `json:"password" binding:"required,min=1,max=255"`
 }
 
+// RegisterController auth
+// @Summary Register the new user
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param body body controllers.UserCredentialDto true "username and password to create user"
+// @Success 201 {object} controllers.TokenResponseDto "the user is register and token is given back"
+// @Router /api/regis [post]
 func (c *Controller) RegisterController(ctx *gin.Context) {
-	var bodyData RegisterDto
+	var bodyData UserCredentialDto
 	if err := ctx.ShouldBindJSON(&bodyData); err != nil {
 		ctx.JSON(400, gin.H{
 			"message": err.Error(),
@@ -74,4 +83,9 @@ func (c *Controller) RegisterController(ctx *gin.Context) {
 	ctx.JSON(201, gin.H{
 		"token": token,
 	})
+}
+
+// TokenResponseDto auth
+type TokenResponseDto struct {
+	Token string `json:"token"`
 }

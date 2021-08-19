@@ -5,8 +5,11 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/thetkpark/golang-todo/controllers"
 	"github.com/thetkpark/golang-todo/db"
+	_ "github.com/thetkpark/golang-todo/docs"
 	"github.com/thetkpark/golang-todo/middlewares"
 	"github.com/thetkpark/golang-todo/models"
 	"github.com/thetkpark/golang-todo/services"
@@ -17,6 +20,15 @@ import (
 	"syscall"
 	"time"
 )
+
+// @title Swagger Golang Todo API
+// @version 1.0
+// @description This is a sample of API server that store todos
+
+// @license.name MIT
+
+// @host localhost:5000
+// @BasePath /
 
 func main() {
 
@@ -68,6 +80,8 @@ func main() {
 		authorization.PATCH("/api/todo/:todoId", controller.FinishTodoController)
 		authorization.DELETE("/api/todo/:todoId", controller.DeleteTodoController)
 	}
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	server := &http.Server{
 		Addr:    ":5000",

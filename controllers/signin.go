@@ -8,13 +8,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type SigninDto struct {
-	Username string `json:"username" binding:"required,min=1,max=255"`
-	Password string `json:"password" binding:"required,min=1,max=255"`
-}
-
+// SignInController auth
+// @Summary Login the user
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param body body controllers.UserCredentialDto true "username and password to login"
+// @Success 201 {object} controllers.TokenResponseDto "the user is login and token is given back"
+// @Router /api/signin [post]
 func (c *Controller) SignInController(ctx *gin.Context) {
-	var body SigninDto
+	var body UserCredentialDto
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(500, gin.H{
 			"message": err.Error(),

@@ -1,0 +1,69 @@
+basePath: /
+definitions:
+  controllers.TokenResponseDto:
+    properties:
+      token:
+        type: string
+    type: object
+  controllers.UserCredentialDto:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+host: localhost:5000
+info:
+  contact: {}
+  description: This is a sample of API server that store todos
+  license:
+    name: MIT
+  title: Swagger Golang Todo API
+  version: "1.0"
+paths:
+  /api/regis:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: username and password to create user
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UserCredentialDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: the user is register and token is given back
+          schema:
+            $ref: '#/definitions/controllers.TokenResponseDto'
+      summary: Register the new user
+      tags:
+      - auth
+  /api/signin:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: username and password to login
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UserCredentialDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: the user is login and token is given back
+          schema:
+            $ref: '#/definitions/controllers.TokenResponseDto'
+      summary: Login the user
+      tags:
+      - auth
+swagger: "2.0"

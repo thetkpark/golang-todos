@@ -1,0 +1,107 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample of API server that store todos",
+        "title": "Swagger Golang Todo API",
+        "contact": {},
+        "license": {
+            "name": "MIT"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:5000",
+    "basePath": "/",
+    "paths": {
+        "/api/regis": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Register the new user",
+                "parameters": [
+                    {
+                        "description": "username and password to create user",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UserCredentialDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "the user is register and token is given back",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TokenResponseDto"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/signin": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login the user",
+                "parameters": [
+                    {
+                        "description": "username and password to login",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.UserCredentialDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "the user is login and token is given back",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TokenResponseDto"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controllers.TokenResponseDto": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.UserCredentialDto": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
