@@ -29,3 +29,15 @@ func NewAuthController(userRepo data.UserRepository, jwtManager *services.JWTMan
 		log:            log,
 	}
 }
+
+type TodoController struct {
+	todoRepository data.TodoRepository
+	log            hclog.Logger
+}
+
+func NewTodoController(todoRepo data.TodoRepository, log hclog.Logger) *TodoController {
+	return &TodoController{
+		todoRepository: todoRepo,
+		log:            log,
+	}
+}

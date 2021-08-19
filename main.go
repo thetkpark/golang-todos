@@ -65,9 +65,11 @@ func main() {
 
 	// Create data repository
 	userRepository := data.NewGormUserRepository(gormDB, logger)
+	todoRepository := data.NewGormTodoRepository(gormDB, logger)
 
 	// Create controller
 	authController := controllers.NewAuthController(userRepository, jwtManager, logger)
+	todoController := controllers.NewTodoController(todoRepository, logger)
 	controller := controllers.NewController(gormDB, jwtManager)
 
 	// Create middleware
@@ -88,7 +90,7 @@ func main() {
 		authorization.GET("/api/todo", controller.GetTodoController)
 		authorization.POST("/api/todo", controller.CreateTodoController)
 		authorization.PATCH("/api/todo/:todoId", controller.FinishTodoController)
-		authorization.DELETE("/api/todo/:todoId", controller.DeleteTodoController)
+		authorization.DELETE("/api/todo/:todoId", todoController.DeleteTodoController)
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
