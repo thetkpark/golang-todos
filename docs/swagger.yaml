@@ -20,6 +20,21 @@ definitions:
     - password
     - username
     type: object
+  models.Todo:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_finished:
+        type: boolean
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
 host: localhost:5000
 info:
   contact: {}
@@ -87,4 +102,31 @@ paths:
       summary: Login the user
       tags:
       - auth
+  /api/todo:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: the list todo that user have
+          schema:
+            $ref: '#/definitions/models.Todo'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ErrorMessage'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorMessage'
+      security:
+      - JwtAuth: []
+      summary: Get all todos
+      tags:
+      - todo
+securityDefinitions:
+  JwtAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

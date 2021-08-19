@@ -24,11 +24,15 @@ import (
 // @title Swagger Golang Todo API
 // @version 1.0
 // @description This is a sample of API server that store todos
-
+//
 // @license.name MIT
-
+//
 // @host localhost:5000
 // @BasePath /
+//
+// @securityDefinitions.apikey JwtAuth
+// @in header
+// @name Authorization
 
 func main() {
 
