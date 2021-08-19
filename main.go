@@ -70,7 +70,6 @@ func main() {
 	// Create controller
 	authController := controllers.NewAuthController(userRepository, jwtManager, logger)
 	todoController := controllers.NewTodoController(todoRepository, logger)
-	controller := controllers.NewController(gormDB, jwtManager)
 
 	// Create middleware
 	middleware := middlewares.NewMiddleware(jwtManager)
@@ -87,9 +86,9 @@ func main() {
 	authorization := router.Group("/")
 	authorization.Use(middleware.AuthorizeJWT())
 	{
-		authorization.GET("/api/todo", controller.GetTodoController)
-		authorization.POST("/api/todo", controller.CreateTodoController)
-		authorization.PATCH("/api/todo/:todoId", controller.FinishTodoController)
+		authorization.GET("/api/todo", todoController.GetTodoController)
+		authorization.POST("/api/todo", todoController.CreateTodoController)
+		authorization.PATCH("/api/todo/:todoId", todoController.FinishTodoController)
 		authorization.DELETE("/api/todo/:todoId", todoController.DeleteTodoController)
 	}
 

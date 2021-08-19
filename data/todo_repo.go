@@ -30,6 +30,7 @@ func (repo *GormTodoRepository) FindAll(userId uint) ([]*models.Todo, error) {
 	var todos []*models.Todo
 	tx := repo.db.Where(&models.Todo{UserId: userId}).Find(&todos)
 	if tx.Error != nil {
+		repo.log.Error("unable to fetch all todos", tx.Error.Error())
 		return nil, tx.Error
 	}
 	return todos, nil

@@ -10,7 +10,7 @@ definitions:
       title:
         type: string
     required:
-      - title
+    - title
     type: object
   controllers.TokenResponseDto:
     properties:
@@ -127,22 +127,22 @@ paths:
           schema:
             $ref: '#/definitions/controllers.ErrorMessage'
       security:
-        - JwtAuth: [ ]
+      - JwtAuth: []
       summary: Get all todos
       tags:
-        - todo
+      - todo
     post:
       consumes:
-        - application/json
+      - application/json
       parameters:
-        - description: title of todo to create
-          in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/controllers.NewTodoDto'
+      - description: title of todo to create
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.NewTodoDto'
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: the list of todos that user have
@@ -157,22 +157,22 @@ paths:
           schema:
             $ref: '#/definitions/controllers.ErrorMessage'
       security:
-        - JwtAuth: [ ]
+      - JwtAuth: []
       summary: Create todo
       tags:
-        - todo
+      - todo
   /api/todo/{todoId}:
     delete:
       consumes:
-        - application/json
+      - application/json
       parameters:
-        - description: id of todo to delete
-          in: path
-          name: todoId
-          required: true
-          type: integer
+      - description: id of todo to delete
+        in: path
+        name: todoId
+        required: true
+        type: integer
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: the list of todos that user have
@@ -191,21 +191,21 @@ paths:
           schema:
             $ref: '#/definitions/controllers.ErrorMessage'
       security:
-        - JwtAuth: [ ]
+      - JwtAuth: []
       summary: Delete todo
       tags:
-        - todo
+      - todo
     patch:
       consumes:
-        - application/json
+      - application/json
       parameters:
-        - description: id of todo that finished
-          in: path
-          name: todoId
-          required: true
-          type: integer
+      - description: id of todo that finished
+        in: path
+        name: todoId
+        required: true
+        type: integer
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: the list of todos that user have
@@ -224,10 +224,10 @@ paths:
           schema:
             $ref: '#/definitions/controllers.ErrorMessage'
       security:
-        - JwtAuth: [ ]
+      - JwtAuth: []
       summary: Finish todo
       tags:
-        - todo
+      - todo
 securityDefinitions:
   JwtAuth:
     in: header

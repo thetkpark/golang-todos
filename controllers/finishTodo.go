@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/thetkpark/golang-todo/models"
 	"gorm.io/gorm"
+	"strconv"
 )
 
 // FinishTodoController finishTodo
@@ -20,33 +20,32 @@ import (
 // @Failure 404 {object} controllers.ErrorMessage "Todo not found"
 // @Failure 500 {object} controllers.ErrorMessage "Internal Server Error"
 // @Router /api/todo/{todoId} [patch]
-func (c *Controller) FinishTodoController(ctx *gin.Context) {
-	todoId := ctx.Param("todoId")
+func (c *TodoController) FinishTodoController(ctx *gin.Context) {
+	todoId, err := strconv.Atoi(ctx.Param("todoId"))
+	if err != nil {
+		c.log.Error("cannot convert todoId string to int")
+		ctx.JSON(500, ErrorMessage{err.Error()})
+		return
+	}
 
 	v, _ := ctx.Get("userId")
 	var userId = uint(v.(float64))
 
-	var todo models.Todo
-	tx := c.db.Where(`id = ? AND user_id = ?`, todoId, userId).First(&todo)
-	if tx.Error != nil {
-		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			ctx.JSON(404, ErrorMessage{fmt.Sprintf("todo with id %s id not found", todoId)})
+	_, err = c.todoRepository.FinishTodo(uint(todoId), userId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(404, ErrorMessage{fmt.Sprintf("todo with id %d is not found", todoId)})
 			return
 		}
-		ctx.JSON(500, ErrorMessage{tx.Error.Error()})
+		c.log.Error("error finishing todo", err.Error())
+		ctx.JSON(500, ErrorMessage{err.Error()})
 		return
 	}
 
-	todo.IsFinished = true
-	tx = c.db.Save(&todo)
-	if tx.Error != nil {
-		ctx.JSON(500, ErrorMessage{tx.Error.Error()})
+	todos, err := c.todoRepository.FindAll(userId)
+	if err != nil {
+		ctx.JSON(500, ErrorMessage{err.Error()})
 		return
-	}
-
-	var todos []models.Todo
-	if tx := c.db.Where(&models.Todo{UserId: userId}).Find(&todos); tx.Error != nil {
-		ctx.JSON(500, ErrorMessage{tx.Error.Error()})
 	}
 
 	ctx.JSON(200, todos)

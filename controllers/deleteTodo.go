@@ -34,9 +34,10 @@ func (c *TodoController) DeleteTodoController(ctx *gin.Context) {
 	_, err = c.todoRepository.Delete(uint(todoId), userId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			ctx.JSON(404, ErrorMessage{fmt.Sprintf("todo with id %s id not found", todoId)})
+			ctx.JSON(404, ErrorMessage{fmt.Sprintf("todo with id %d is not found", todoId)})
 			return
 		}
+		c.log.Error("error delete todo", err.Error())
 		ctx.JSON(500, ErrorMessage{err.Error()})
 		return
 	}

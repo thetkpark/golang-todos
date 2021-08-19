@@ -1,10 +1,12 @@
 package models
 
-import "gorm.io/gorm"
+import "time"
 
 type User struct {
-	gorm.Model
-	Username string `gorm:"unique"`
-	Password string
-	Todos    []Todo `gorm:"foreignKey:UserId"`
+	ID        uint      `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Username  string    `gorm:"unique"`
+	Password  string
+	Todos     []Todo `gorm:"foreignKey:UserId"`
 }
